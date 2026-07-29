@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿A qué rama del zodiaco perteneces?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --void:#0b0b12; --panel:#15151f; --panel-2:#1c1c29;
+    --yin:#35c9c2; --yang:#e2472e; --gold:#c8a24a;
+    --bone:#ece7da; --muted:#8b8a9a; --line: rgba(200,162,74,0.25);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(53,201,194,0.10), transparent 55%),
+      radial-gradient(ellipse at 90% 10%, rgba(226,71,46,0.10), transparent 55%),
+      var(--void);
+    color:var(--bone); font-family:'Work Sans', sans-serif;
+    min-height:100vh; display:flex; justify-content:center; padding:32px 16px 64px;
+  }
+  .app{ width:100%; max-width:560px; }
+  .brand{ text-align:center; margin-bottom:26px; }
+  .brand .eyebrow{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); }
+  .brand h1{ font-family:'Cinzel', serif; font-weight:700; font-size:25px; margin:6px 0 0; }
+  .brand p{ color:var(--muted); font-size:14px; margin:8px 0 0; }
+
+  .progress-bar-wrap{ margin:20px 0 26px; }
+  .progress-label{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); letter-spacing:.1em; margin-bottom:8px; display:flex; justify-content:space-between; }
+  .progress-track{ height:3px; background:var(--panel-2); border-radius:99px; overflow:hidden; }
+  .progress-fill{ height:100%; border-radius:99px; background:linear-gradient(90deg, var(--yin), var(--yang)); transition:width .4s ease; }
+
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:26px 22px; }
+  .step-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--yin); margin:0 0 6px; }
+  .step-title{ font-family:'Cinzel', serif; font-size:18px; margin:0 0 8px; line-height:1.4; }
+  .step-help{ color:var(--muted); font-size:13px; margin:0 0 18px; line-height:1.5; }
+
+  .stack{ display:flex; flex-direction:column; gap:10px; }
+  .option{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; font-size:14px; text-align:left; cursor:pointer;
+    transition:all .2s ease; display:flex; align-items:flex-start; gap:10px;
+  }
+  .option:hover{ border-color:var(--gold); transform:translateY(-1px); }
+  .option.selected{ border-color:var(--gold); background:linear-gradient(160deg, rgba(200,162,74,0.18), rgba(200,162,74,0.05)); }
+  .opt-icon{ font-size:20px; line-height:1; flex-shrink:0; margin-top:1px; }
+  .opt-text{}
+  .opt-title{ font-weight:600; font-size:14px; color:var(--bone); }
+  .opt-sub{ font-size:12px; color:var(--muted); margin-top:3px; line-height:1.4; }
+
+  /* multi-select hint */
+  .multi-hint{ font-size:12px; color:var(--yin); margin-bottom:10px; font-family:'JetBrains Mono',monospace; }
+
+  input[type="text"], select{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:11px 14px; color:var(--bone); font-family:'Work Sans', sans-serif; font-size:14.5px;
+    outline:none; margin-bottom:12px; appearance:none;
+  }
+  input[type="text"]:focus, select:focus{ border-color:var(--gold); }
+  label.field-label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; margin-top:2px; }
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+  .field-note{ font-size:12px; color:var(--muted); margin:2px 0 14px; line-height:1.5; }
+
+  .nav{ display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  button{ font-family:'Work Sans', sans-serif; font-weight:600; font-size:14px; border-radius:8px;
+    padding:11px 20px; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--muted); }
+  button.primary{ background:linear-gradient(135deg, var(--yin), var(--yang)); color:var(--void); border:none; }
+  button.primary:disabled{ opacity:.35; cursor:not-allowed; filter:grayscale(.4); }
+  button.ghost{ background:transparent; }
+
+  #result-wrap{ display:none; }
+  .result-card{ background: linear-gradient(180deg, rgba(53,201,194,0.06), rgba(226,71,46,0.06)), var(--panel);
+    border:1px solid var(--gold); border-radius:14px; padding:28px 24px; }
+  .result-top{ text-align:center; }
+  .result-glyph{ font-family:'Cinzel', serif; font-size:42px; color:var(--gold); line-height:1; }
+  .result-eyebrow{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--yin); margin-top:8px; }
+  .result-unit{ font-family:'Cinzel', serif; font-size:22px; margin:6px 0 2px; }
+  .result-zodiac{ color:var(--muted); font-size:13px; }
+  .result-frase{ font-style:italic; color:var(--bone); font-size:14.5px; margin:16px 0; border-left:2px solid var(--gold); padding-left:12px; text-align:left; }
+
+  .section-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin:18px 0 8px; text-align:left; }
+  .trial-text{ font-size:13.5px; line-height:1.65; color:var(--bone); text-align:left; }
+  ul.skills{ margin:0; padding-left:18px; text-align:left; font-size:13.5px; line-height:1.7; }
+  ul.skills li::marker{ color:var(--gold); }
+
+  .lore-tag{ display:inline-block; margin-top:16px; padding:7px 14px; border-radius:999px;
+    font-size:12px; font-family:'JetBrains Mono', monospace; border:1px solid var(--line); }
+  .lore-tag.appears{ color:#8ee6c9; border-color:#8ee6c9; }
+  .lore-tag.low{ color:#e2c14a; border-color:#e2c14a; }
+  .lore-tag.soon{ color:var(--muted); }
+
+  .appearance-box{ text-align:left; margin-top:18px; padding-top:14px; border-top:1px solid var(--line); }
+  .char-name{ font-family:'Cinzel', serif; font-size:15px; color:var(--gold); }
+  .char-desc{ font-size:13px; color:var(--muted); margin-top:4px; line-height:1.6; }
+
+  .result-actions{ display:flex; gap:10px; margin-top:22px; }
+  .result-actions button{ flex:1; }
+  .footer-note{ text-align:center; color:var(--muted); font-size:12px; margin-top:22px; line-height:1.6; }
+  .footer-note b{ color:var(--gold); }
+
+  /* transition animation */
+  .card{ transition: opacity .2s ease; }
+  .card.fade-out{ opacity:0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brand">
+    <div class="eyebrow">Protectores de Taltaio</div>
+    <h1>¿A qué rama del zodiaco perteneces?</h1>
+    <p>Responde con honestidad. El zodiaco no puede ser engañado.</p>
+  </div>
+
+  <div class="progress-bar-wrap" id="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">Pregunta 1 de 9</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card" id="quiz-wrap">
+    <div class="step-label" id="step-label"></div>
+    <div class="step-title" id="step-title"></div>
+    <div class="step-help" id="step-help"></div>
+    <div id="step-body"></div>
+    <div class="nav">
+      <button class="ghost" id="btn-back">Atrás</button>
+      <button class="primary" id="btn-next" disabled>Continuar</button>
+    </div>
+  </div>
+
+  <div id="result-wrap">
+    <div class="result-card" id="result-card">
+      <div class="result-top">
+        <div class="result-glyph" id="r-glyph"></div>
+        <div class="result-eyebrow" id="r-group"></div>
+        <div class="result-unit" id="r-unit"></div>
+        <div class="result-zodiac" id="r-zodiac"></div>
+      </div>
+      <div class="result-frase" id="r-frase"></div>
+
+      <div class="section-label">La prueba de ingreso</div>
+      <div class="trial-text" id="r-trial"></div>
+
+      <div class="section-label">Se te exige</div>
+      <ul class="skills" id="r-skills"></ul>
+
+      <div id="r-lore"></div>
+
+      <div class="appearance-box" id="r-appearance-box" style="display:none;">
+        <div class="char-name" id="r-charname"></div>
+        <div class="char-desc" id="r-chardesc"></div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="ghost" id="btn-restart">Repetir</button>
+      <button class="primary" id="btn-download">Descargar imagen</button>
+    </div>
+    <p class="footer-note">Comparte tu resultado etiquetando <b>@m.f.salazar</b> con <b>#ProtectoresDeTaltaio</b> — cada semana ilustro con IA a algunos de los personajes que me etiqueten.</p>
+  </div>
+
+</div>
+
+<script>
+/* ─── BRANCH DATA ─── */
+// Each branch has a glyph for Q9 dynamic option display
+const BRANCHES = {
+  raton: {
+    zodiac:'Rata', glyph:'子', group:'mistica', unit:'Los Arquitectos de la Guerra',
+    frase:'Un ratón siempre ganará con menos movimientos.',
+    trial:'Debes idear una estrategia de batalla en una guerra simulada, usando computadores avanzados e IA de contraataque, bajo estrés extremo y con muy pocas horas de sueño.',
+    skills:['Alta inteligencia para resolver problemas.','Mente inquebrantable ante trucos y presión psicológica.','Especialistas en estrategias de guerra.'],
+    lore:'aunNo'
+  },
+  buey: {
+    zodiac:'Buey', glyph:'丑', group:'marcial', unit:'Los Rompelíneas',
+    frase:'Cuando un buey avanza, la línea enemiga se rompe.',
+    trial:'Debes moldear metal con las manos o los pies, reteniendo grandes fuerzas elementales y rompiendo campos protectores. Nunca se usa arma alguna, solo el cuerpo.',
+    skills:['Fuerza y destreza física.','Resistentes a situaciones extremas.','Especialistas en artes marciales.'],
+    lore:'aunNo'
+  },
+  tigre: {
+    zodiac:'Tigre', glyph:'寅', group:'marcial', unit:'Los Hijos de la Garra',
+    frase:'Los tigres no temen a la sangre… la dominan.',
+    trial:'Debes forjar y usar un arma cortopunzante (que no sea espada) en combate contra máquinas, gólems y ataques elementales, rompiendo campos protectores.',
+    skills:['Manejo de armas cortopunzantes distintas a la espada.','Resistentes a ataques físicos.','Especialistas en detener sangramientos.'],
+    lore:'aparece'
+  },
+  conejo: {
+    zodiac:'Conejo', glyph:'卯', group:'mistica', unit:'Los Caminantes Interdimensionales',
+    frase:'Si un conejo aparece, su enemigo nunca lo hará.',
+    trial:'Debes hacer uso del séptimo sello y viajar a puntos del mapa que no puedes ver. Un médico debe estar presente en caso de desfragmentación.',
+    skills:['Amos del séptimo sello.','Resistentes a la privación de sentidos.','Especialistas en trasladar las batallas.'],
+    lore:'aunNo'
+  },
+  dragon: {
+    zodiac:'Dragón', glyph:'辰', group:'marcial', unit:'Los Custodios del Filo',
+    frase:'Un dragón puede cerrar los ojos, pero su espada jamás duerme.',
+    trial:'Debes forjar una espada de una sola mano y demostrar postura y precisión: cada corte tiene que ser perfecto, o la prueba se rechaza.',
+    skills:['Gran manejo de espadas de una mano.','Resistentes al cansancio y las provocaciones.','Especialistas en postura y pulcritud.'],
+    lore:'bajoNivel'
+  },
+  serpiente: {
+    zodiac:'Serpiente', glyph:'巳', group:'marcial', unit:'Los Susurradores de la Muerte',
+    frase:'Donde la serpiente pasa, el cuerpo se rinde antes que la espada.',
+    trial:'Debes usar veneno para atravesar máquinas vulnerables a él, ideando armas precisas y cambiando de arma como de piel según la situación.',
+    skills:['Dominan el arte del veneno silencioso.','Resistentes a venenos y parásitos.','Especialistas en invisibilidad operativa.'],
+    lore:'aunNo'
+  },
+  caballo: {
+    zodiac:'Caballo', glyph:'午', group:'marcial', unit:'Los Avizores',
+    frase:'Si un caballo puede verlo, puede derribarlo.',
+    trial:'Debes acertar un tiro de larguísimo alcance y desaparecer de inmediato, para que nadie pueda rastrear el ángulo del disparo.',
+    skills:['Los más rápidos y ágiles.','Resistentes a juegos visuales.','Especialistas en ataques de largo alcance.'],
+    lore:'aparece'
+  },
+  cabra: {
+    zodiac:'Cabra', glyph:'未', group:'marcial', unit:'Los Inquebrantables',
+    frase:'Para una cabra no importa el arma, importa la voluntad.',
+    trial:'Debes forjar un arma de medio alcance (cadenas u objetos que se alargan) y usarla tanto para cubrirte de proyectiles como para atacar con ella.',
+    skills:['Gran manejo de armas no convencionales.','Resistentes a heridas y mutilaciones.','Especialistas en defender y atacar con la misma arma.'],
+    lore:'aparece'
+  },
+  mono: {
+    zodiac:'Mono', glyph:'申', group:'mistica', unit:'Los Creadores de Mentiras',
+    frase:'Un mono sabe que quien controla la percepción controla la batalla.',
+    trial:'Debes controlar los sentidos de otros o sumergirlos en ilusiones, mientras blindas tu propia mente frente a los mismos trucos.',
+    skills:['Maestros de la palabra y la elocuencia.','Resistentes a engaños y trampas.','Especialistas en ilusiones y juegos mentales.'],
+    lore:'aunNo'
+  },
+  gallo: {
+    zodiac:'Gallo', glyph:'酉', group:'mistica', unit:'Heraldos Elementales',
+    frase:'Cuando el gallo los levanta, los elementos lo escuchan.',
+    trial:'Debes dominar el poder elemental — agua, aire, flora, fuego, tierra o rayo. Si solo tienes un elemento, debes explotarlo hasta el límite.',
+    skills:['Combatientes elementales, visibles y devastadores.','Resistentes prácticamente a todo lo que los rodea.','Especialistas en dominio elemental.'],
+    lore:'aunNo'
+  },
+  perro: {
+    zodiac:'Perro', glyph:'戌', group:'mistica', unit:'Los Portadores del Velo',
+    frase:'Un perro sabe que lo que no ves, también puede matarte.',
+    trial:'Debes ver el alma de los seres y ser capaz de invocar o liberar fantasmas. Son los guardianes del plano espiritual.',
+    skills:['Poseedores del llamado sexto sentido.','Resistentes a los susurros espirituales.','Especialistas en comunicarse con el mundo espiritual.'],
+    lore:'bajoNivel'
+  },
+  cerdo: {
+    zodiac:'Cerdo', glyph:'亥', group:'marcial', unit:'La Guardia de la Última Línea',
+    frase:'Mientras un cerdo siga en pie, el ejército no ha caído.',
+    trial:'Debes forjar un arma que se divida en dos y demostrar ser completamente ambidiestro, luchando distinto con cada mano.',
+    skills:['Ambidiestros.','Resistentes al dolor.','Especialistas en asedio.'],
+    lore:'aparece'
+  },
+};
+
+const LORE_TEXT = {
+  aparece: {cls:'appears', text:'Esta rama SÍ hace su aparición en el Volumen 1.'},
+  bajoNivel: {cls:'low', text:'Esta rama tiene presencia en el Volumen 1, pero de bajo nivel.'},
+  aunNo: {cls:'soon', text:'Esta rama aún no aparece en el Volumen 1 — pero llegará pronto.'},
+};
+
+/* ─── SCORING ─── */
+// Cada pregunta suma puntos a ramas. Al llegar a Q8 se generan las opciones
+// dinámicamente con los top-5 zodiacos según lo acumulado hasta ese momento.
+
+// Frases únicas por zodiaco para la pregunta dinámica final
+const BRANCH_Q9 = {
+  raton:     {icon:'🧠', frase:'"La guerra la gané antes de que empezara"',     sub:'Estrategia fría. Ningún movimiento de más.'},
+  buey:      {icon:'🐂', frase:'"Sigo de pie aunque me rompan"',                sub:'Soy la primera y la última línea.'},
+  tigre:     {icon:'🐯', frase:'"No temo a la sangre. La domino"',              sub:'El filo es una extensión de mí.'},
+  conejo:    {icon:'🐇', frase:'"Si aparezco, ya gané"',                        sub:'Opero donde el espacio no tiene dueño.'},
+  dragon:    {icon:'🐉', frase:'"Cada corte es una decisión, no un instinto"',  sub:'La postura perfecta no necesita fuerza.'},
+  serpiente: {icon:'🐍', frase:'"Cambio de arma como de piel"',                 sub:'Antes de que lo vean, ya no estoy.'},
+  caballo:   {icon:'🐴', frase:'"Si puedo verlo, ya está caído"',               sub:'Disparo y desaparezco. Nadie encuentra el ángulo.'},
+  cabra:     {icon:'🐐', frase:'"No importa el arma. Importa la voluntad"',     sub:'Me defiendo y ataco con lo mismo.'},
+  mono:      {icon:'🐒', frase:'"Quien controla lo que ves, controla la batalla"',sub:'La ilusión ya es una victoria.'},
+  gallo:     {icon:'🐓', frase:'"Los elementos me escuchan"',                   sub:'El entorno es mi arma más grande.'},
+  perro:     {icon:'🐕', frase:'"Lo que no ves también puede matarte"',         sub:'Veo lo que otros no pueden ni imaginar.'},
+  cerdo:     {icon:'🐗', frase:'"Mientras yo siga en pie, el ejército no ha caído"', sub:'Dos manos. Dos formas de ganar.'},
+};
+
+const BASE_STEPS = [
+  /* 0 */ {
+    id:'rol',
+    label:'Pregunta 1 · Estilo de pelea',
+    title:'Si estuvieras en el campo de batalla, ¿desde dónde preferirías operar?',
+    help:'',
+    type:'single',
+    options:[
+      {icon:'🩸', title:'En el frente',         sub:'Cara a cara, sin importar el costo.', key:'frente'},
+      {icon:'👁️', title:'En las sombras',        sub:'Que no sepan que estoy ahí hasta que sea tarde.', key:'sombras'},
+      {icon:'🧠', title:'Desde la retaguardia',  sub:'Controlando la situación desde arriba.', key:'retaguardia'},
+      {icon:'✨', title:'En otro plano',          sub:'El campo físico me limita. Opero donde otros no pueden.', key:'plano'},
+    ],
+    score:{
+      frente:      {buey:3, tigre:2, dragon:2, cabra:1, cerdo:3},
+      sombras:     {serpiente:3, caballo:2, tigre:1, mono:1},
+      retaguardia: {raton:3, caballo:2, mono:2, gallo:1},
+      plano:       {conejo:3, perro:3, mono:2, gallo:1},
+    }
+  },
+
+  /* 1 */ {
+    id:'cuerpo',
+    label:'Pregunta 2 · Cuerpo y mente',
+    title:'¿En qué confías más de ti mismo cuando las cosas se ponen difíciles?',
+    help:'',
+    type:'single',
+    options:[
+      {icon:'💪', title:'Mi fuerza bruta',           sub:'El cuerpo aguanta lo que la mente pide.', key:'fuerza'},
+      {icon:'⚡', title:'Mi velocidad y reflejos',    sub:'Nadie me alcanza y nadie me sorprende.', key:'velocidad'},
+      {icon:'🧩', title:'Mi cabeza fría',             sub:'Analizo mientras los demás entran en pánico.', key:'mente'},
+      {icon:'🔮', title:'Algo que no puedo explicar', sub:'Un sentido que va más allá de lo físico.', key:'sentido'},
+    ],
+    score:{
+      fuerza:   {buey:3, cerdo:2, dragon:1, cabra:2},
+      velocidad:{caballo:3, tigre:2, serpiente:2, cabra:1},
+      mente:    {raton:3, mono:2, serpiente:1, dragon:1},
+      sentido:  {perro:3, conejo:3, mono:1, gallo:1},
+    }
+  },
+
+  /* 2 */ {
+    id:'arma',
+    label:'Pregunta 3 · Armamento',
+    title:'Si tuvieras que elegir una forma de enfrentarte a un enemigo, ¿cuál sería?',
+    help:'Imagina que la vida depende de eso.',
+    type:'single',
+    options:[
+      {icon:'🗡️', title:'Un arma que yo mismo forjo',      sub:'Espada, daga o algo con filo.', key:'forja'},
+      {icon:'🔗', title:'Un arma que se alarga o enrolla', sub:'Cadenas, látigos, algo que se estira.', key:'alcance'},
+      {icon:'🎯', title:'Disparo desde lejos',              sub:'Una flecha, una bala, lo que sea con distancia.', key:'rango'},
+      {icon:'🤜', title:'Mis propias manos',                sub:'No necesito nada más.', key:'manos'},
+      {icon:'🧪', title:'Algo invisible',                   sub:'Veneno, ilusión, lo que no se ve venir.', key:'invisible'},
+    ],
+    score:{
+      forja:    {dragon:3, tigre:2, cerdo:2, buey:1},
+      alcance:  {cabra:3, caballo:1, cerdo:1},
+      rango:    {caballo:3, raton:1},
+      manos:    {buey:3, tigre:1, cerdo:1},
+      invisible:{serpiente:3, mono:2, conejo:1},
+    }
+  },
+
+  /* 3 */ {
+    id:'elemento',
+    label:'Pregunta 4 · Elementos',
+    title:'Si pudieras controlar algo, ¿qué sentirías como tuyo?',
+    help:'Solo uno. El que sientas más cercano a tu forma de ser.',
+    type:'single',
+    options:[
+      {icon:'🔥', title:'Fuego',        sub:'Consume todo. Tú también.', key:'fuego'},
+      {icon:'💧', title:'Agua',         sub:'Flexible, imparable, adaptable.', key:'agua'},
+      {icon:'⚡', title:'Rayo',         sub:'Un golpe certero. Sin aviso.', key:'rayo'},
+      {icon:'🌿', title:'Flora',        sub:'Enredaderas que atrapan, raíces que rompen.', key:'flora'},
+      {icon:'🌪️', title:'Aire',        sub:'Donde estás, nadie lo sabe.', key:'aire'},
+      {icon:'🪨', title:'Tierra',       sub:'Firme. Nada te mueve.', key:'tierra'},
+      {icon:'🌀', title:'Telequinesis', sub:'Mover lo que otros no pueden tocar.', key:'telequinesis'},
+      {icon:'☀️', title:'Luz',          sub:'Ciega, guía, revela lo oculto.', key:'luz'},
+      {icon:'🌑', title:'Oscuridad',    sub:'No hay poder más absoluto que lo que no se ve.', key:'oscuridad'},
+    ],
+    score:{
+      fuego:       {gallo:3, dragon:1, tigre:1},
+      agua:        {gallo:3, conejo:1, serpiente:1},
+      rayo:        {gallo:3, caballo:1},
+      flora:       {gallo:3, cabra:1},
+      aire:        {gallo:3, caballo:1, conejo:1},
+      tierra:      {gallo:3, buey:1, cerdo:1},
+      telequinesis:{mono:2, conejo:2, raton:1},
+      luz:         {perro:2, dragon:2, gallo:1},
+      oscuridad:   {perro:3, serpiente:2, mono:1},
+    }
+  },
+
+  /* 4 */ {
+    id:'mente_poder',
+    label:'Pregunta 5 · Poder mental',
+    title:'Si pudieras hacer una cosa con tu mente, ¿qué elegirías?',
+    help:'',
+    type:'single',
+    options:[
+      {icon:'🌀', title:'Hacer creer a alguien que ve algo que no existe', sub:'Construir la ilusión perfecta.', key:'ilusion'},
+      {icon:'📡', title:'Anticipar cada movimiento del enemigo',            sub:'Pensar diez pasos adelante.', key:'estrategia'},
+      {icon:'🚪', title:'Aparecer en cualquier punto del espacio',           sub:'Sin importar si puedo verlo.', key:'teletransporte'},
+      {icon:'👁️', title:'Ver lo que nadie más puede ver',                   sub:'Almas, presencias, verdades ocultas.', key:'vision'},
+      {icon:'🔒', title:'Blindar mi mente completamente',                   sub:'Que nada ni nadie entre.', key:'escudo'},
+    ],
+    score:{
+      ilusion:       {mono:3, serpiente:1},
+      estrategia:    {raton:3, mono:1, caballo:1},
+      teletransporte:{conejo:3},
+      vision:        {perro:3, conejo:1},
+      escudo:        {raton:2, mono:2, perro:1},
+    }
+  },
+
+  /* 5 */ {
+    id:'resistencia',
+    label:'Pregunta 6 · Resistencia',
+    title:'¿Qué tipo de tortura aguantarías mejor?',
+    help:'No hay respuesta cobarde. Solo honesta.',
+    type:'single',
+    options:[
+      {icon:'🧊', title:'Dolor físico extremo',          sub:'Golpes, heridas, temperatura límite.', key:'dolor'},
+      {icon:'😵', title:'Privación sensorial total',     sub:'Sin ver, sin oír, sin saber dónde estás.', key:'privacion'},
+      {icon:'🎭', title:'Que te hagan creer algo falso',  sub:'Manipulación, juegos de mente, engaños.', key:'engano'},
+      {icon:'😴', title:'Sin dormir, sin parar',         sub:'Días operando sin descanso ni claridad.', key:'sueño'},
+      {icon:'🧿', title:'Que algo invisible te hable',   sub:'Voces, presencias, visiones que no puedes ignorar.', key:'espiritu'},
+    ],
+    score:{
+      dolor:    {buey:3, cerdo:3, cabra:2, tigre:2},
+      privacion:{conejo:3, caballo:1, serpiente:1},
+      engano:   {mono:3, raton:2, perro:1},
+      sueño:    {raton:3, dragon:2, serpiente:1},
+      espiritu: {perro:3, conejo:1, mono:1},
+    }
+  },
+
+  /* 6 */ {
+    id:'aliado',
+    label:'Pregunta 7 · Alianza',
+    title:'En un equipo de guerra, ¿qué rol tomarías sin que te lo pidan?',
+    help:'',
+    type:'single',
+    options:[
+      {icon:'🛡️', title:'El escudo',       sub:'Absorbo el golpe para que los demás puedan actuar.', key:'escudo'},
+      {icon:'🗺️', title:'El estratega',    sub:'Decido el plan. Todos lo ejecutan.', key:'estratega'},
+      {icon:'🩺', title:'El soporte',      sub:'Mantengo a los demás en pie cuando todo falla.', key:'soporte'},
+      {icon:'💣', title:'El detonador',    sub:'Entro primero. Hago el daño. Los demás terminan.', key:'detonador'},
+      {icon:'🔍', title:'El explorador',   sub:'Voy donde nadie va. Traigo información que nadie tiene.', key:'explorador'},
+    ],
+    score:{
+      escudo:    {cerdo:3, buey:2, cabra:2},
+      estratega: {raton:3, dragon:1, mono:1},
+      soporte:   {tigre:2, perro:2, gallo:1},
+      detonador: {tigre:3, buey:2, dragon:2, caballo:1},
+      explorador:{serpiente:3, caballo:2, conejo:3, mono:1},
+    }
+  },
+
+  /* 7 */ {
+    id:'victoria',
+    label:'Pregunta 8 · Victoria',
+    title:'¿Cómo defines ganar una batalla?',
+    help:'',
+    type:'single',
+    options:[
+      {icon:'💥', title:'El enemigo cae frente a mí',               sub:'Lo vi a los ojos y gané.', key:'frente'},
+      {icon:'🕵️', title:'El enemigo nunca supo que fui yo',         sub:'La mejor operación es la invisible.', key:'invisible'},
+      {icon:'♟️', title:'El enemigo cayó en la trampa que puse',    sub:'La batalla la gané antes de comenzar.', key:'trampa'},
+      {icon:'🌪️', title:'El enemigo no pudo moverse',               sub:'El entorno trabajó para mí.', key:'entorno'},
+      {icon:'🔗', title:'Lo controlo. No lo destruyo',              sub:'Hay maneras de ganar sin destruir.', key:'control'},
+    ],
+    score:{
+      frente:   {buey:3, dragon:2, tigre:2, cerdo:2},
+      invisible:{serpiente:3, caballo:2, conejo:2},
+      trampa:   {raton:3, mono:3, serpiente:1},
+      entorno:  {gallo:3, cabra:1, conejo:1},
+      control:  {mono:3, perro:2, conejo:1},
+    }
+  },
+
+  /* 8 — DINÁMICA: se construye en tiempo real con top-5 zodiacos */
+  {
+    id:'frase_final',
+    label:'Pregunta 9 · La última prueba',
+    title:'¿Cuál de estas frases sientes que podría salir de tu boca en el peor momento?',
+    help:'El zodiaco reconoce su voz en la tuya.',
+    type:'dynamic_q9',
+  },
+
+  /* 9 — Apariencia */
+  {
+    id:'apariencia',
+    label:'Paso Final · Opcional',
+    title:'Diseña a tu personaje',
+    help:'Opcional, pero necesario si quieres que consideremos tu resultado para una ilustración con IA.',
+    type:'appearance',
+  }
+];
+
+const TOTAL_STEPS = BASE_STEPS.length; // 10
+
+const HAIR_COLORS = ['Negro','Castaño','Rubio','Pelirrojo','Plateado','Blanco','Azul / Verde fantasía'];
+const HAIR_SHAPES = ['Liso','Ondulado','Rizado','Trenzado','Recogido / Moño','Rapado en los lados'];
+const EYE_COLORS  = ['Cafés','Verdes','Azules','Grises','Ámbar','Heterocromía (2 colores)'];
+const SKIN_TONES  = ['Pálida','Clara','Trigueña','Morena','Oscura'];
+const BODY_BUILD  = ['Delgada','Atlética','Robusta','Voluptuosa','Menuda / pequeña'];
+const GENDER_IDS  = ['Femenino','Masculino','No binario','Otro'];
+
+let answers   = {};
+let scores    = {};
+let stepIndex = 0;
+let cachedQ9Options = null;
+
+function initScores(){
+  scores = {};
+  Object.keys(BRANCHES).forEach(k => scores[k] = 0);
+}
+
+function addScores(map){
+  if(!map) return;
+  Object.entries(map).forEach(([branch, pts]) => {
+    if(scores[branch] !== undefined) scores[branch] += pts;
+  });
+}
+
+function computeResult(){
+  let best = null, bestScore = -1;
+  Object.entries(scores).forEach(([branch, pts]) => {
+    if(pts > bestScore){ bestScore = pts; best = branch; }
+  });
+  return best;
+}
+
+function getTop5Branches(){
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([key]) => key);
+}
+
+function buildQ9Options(){
+  if(cachedQ9Options) return cachedQ9Options;
+  const top5 = getTop5Branches();
+  cachedQ9Options = top5.map(key => ({
+    key,
+    icon:  BRANCH_Q9[key].icon,
+    title: BRANCH_Q9[key].frase,
+    sub:   BRANCH_Q9[key].sub,
+  }));
+  return cachedQ9Options;
+}
+
+/* ─── RENDER ─── */
+function render(){
+  const step = BASE_STEPS[stepIndex];
+  const isDynQ9      = step.type === 'dynamic_q9';
+  const isAppearance = step.type === 'appearance';
+
+  const quizTotal    = 9;
+  const quizProgress = isAppearance ? quizTotal : stepIndex;
+  const pct = Math.round((quizProgress / quizTotal) * 100);
+
+  document.getElementById('progress-text').textContent =
+    isAppearance ? 'Último paso' : `Pregunta ${stepIndex + 1} de 9`;
+  document.getElementById('progress-pct').textContent  = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  document.getElementById('step-label').textContent = step.label;
+  document.getElementById('step-title').textContent = step.title;
+  document.getElementById('step-help').textContent  = step.help || '';
+
+  const body = document.getElementById('step-body');
+  body.innerHTML = '';
+
+  if(isDynQ9){
+    const opts = buildQ9Options();
+    const stack = document.createElement('div');
+    stack.className = 'stack';
+    opts.forEach(opt => {
+      const el = document.createElement('div');
+      el.className = 'option' + (answers[step.id] === opt.key ? ' selected' : '');
+      el.innerHTML = `<div class="opt-icon">${opt.icon}</div><div class="opt-text"><div class="opt-title">${opt.title}</div>${opt.sub ? `<div class="opt-sub">${opt.sub}</div>` : ''}</div>`;
+      el.onclick = () => {
+        if(answers['_prev_frase_final']){
+          scores[answers['_prev_frase_final']] -= 4;
+        }
+        answers[step.id] = opt.key;
+        scores[opt.key] = (scores[opt.key] || 0) + 4;
+        answers['_prev_frase_final'] = opt.key;
+        render();
+      };
+      stack.appendChild(el);
+    });
+    body.appendChild(stack);
+
+  } else if(!isAppearance){
+    const stack = document.createElement('div');
+    stack.className = 'stack';
+    step.options.forEach(opt => {
+      const el = document.createElement('div');
+      el.className = 'option' + (answers[step.id] === opt.key ? ' selected' : '');
+      el.innerHTML = `<div class="opt-icon">${opt.icon}</div><div class="opt-text"><div class="opt-title">${opt.title}</div>${opt.sub ? `<div class="opt-sub">${opt.sub}</div>` : ''}</div>`;
+      el.onclick = () => {
+        answers[step.id] = opt.key;
+        if(step.score && step.score[opt.key]){
+          if(answers['_prev_'+step.id]){
+            const prev = answers['_prev_'+step.id];
+            if(step.score[prev]) Object.entries(step.score[prev]).forEach(([b,p])=>{ scores[b]-=p; });
+          }
+          addScores(step.score[opt.key]);
+          answers['_prev_'+step.id] = opt.key;
+        }
+        render();
+      };
+      stack.appendChild(el);
+    });
+    body.appendChild(stack);
+
+  } else {
+    const wrap = document.createElement('div');
+    wrap.innerHTML =
+      '<label class="field-label">Nombre o apodo del personaje</label>'+
+      '<input type="text" id="in-name" placeholder="Ej: Aeloria">'+
+      '<label class="field-label">Tu usuario de Instagram o TikTok</label>'+
+      '<input type="text" id="in-user" placeholder="@tuusuario">'+
+      '<label class="field-label">Identidad de género del personaje</label>'+
+      selectField('in-gender', GENDER_IDS, answers.gender)+
+      '<div class="field-grid">'+
+        '<div><label class="field-label">Color de cabello</label>'+selectField('in-hair', HAIR_COLORS, answers.hair)+'</div>'+
+        '<div><label class="field-label">Forma del cabello</label>'+selectField('in-hairshape', HAIR_SHAPES, answers.hairShape)+'</div>'+
+        '<div><label class="field-label">Color de ojos</label>'+selectField('in-eyes', EYE_COLORS, answers.eyes)+'</div>'+
+        '<div><label class="field-label">Tono de piel</label>'+selectField('in-skin', SKIN_TONES, answers.skin)+'</div>'+
+      '</div>'+
+      '<label class="field-label">Complexión física</label>'+selectField('in-build', BODY_BUILD, answers.build)+
+      '<p class="field-note">Estos datos solo se usan para que tu ilustración se vea como tú la imaginas.</p>';
+    body.appendChild(wrap);
+    setTimeout(()=>{
+      document.getElementById('in-name').value = answers.charName || '';
+      document.getElementById('in-user').value = answers.charUser || '';
+      document.getElementById('in-name').oninput       = e => answers.charName  = e.target.value;
+      document.getElementById('in-user').oninput       = e => answers.charUser  = e.target.value;
+      document.getElementById('in-gender').onchange    = e => answers.gender    = e.target.value;
+      document.getElementById('in-hair').onchange      = e => answers.hair      = e.target.value;
+      document.getElementById('in-hairshape').onchange = e => answers.hairShape = e.target.value;
+      document.getElementById('in-eyes').onchange      = e => answers.eyes      = e.target.value;
+      document.getElementById('in-skin').onchange      = e => answers.skin      = e.target.value;
+      document.getElementById('in-build').onchange     = e => answers.build     = e.target.value;
+    }, 0);
+  }
+
+  const canAdvance = isAppearance ? true : !!answers[step.id];
+  document.getElementById('btn-next').disabled = !canAdvance;
+  document.getElementById('btn-back').style.visibility = stepIndex === 0 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').textContent = isAppearance ? 'Ver mi resultado' : 'Continuar';
+}
+
+function selectField(id, options, current){
+  let html = '<select id="' + id + '">';
+  html += '<option value="">Sin preferencia</option>';
+  options.forEach(o => {
+    html += '<option value="' + o + '"' + (current === o ? ' selected' : '') + '>' + o + '</option>';
+  });
+  html += '</select>';
+  return html;
+}
+
+/* ─── NAV ─── */
+document.getElementById('btn-next').onclick = () => {
+  // Justo antes de entrar a Q9: cachear top5 con los scores hasta aquí
+  if(BASE_STEPS[stepIndex + 1] && BASE_STEPS[stepIndex + 1].type === 'dynamic_q9'){
+    cachedQ9Options = null;
+  }
+  stepIndex++;
+  if(stepIndex >= TOTAL_STEPS){ showResult(); return; }
+  fadeCard(render);
+};
+
+document.getElementById('btn-back').onclick = () => {
+  if(stepIndex > 0){ stepIndex--; fadeCard(render); }
+};
+
+function fadeCard(cb){
+  const card = document.getElementById('quiz-wrap');
+  card.classList.add('fade-out');
+  setTimeout(()=>{ cb(); card.classList.remove('fade-out'); }, 180);
+}
+
+/* ─── RESULT ─── */
+function showResult(){
+  document.getElementById('quiz-wrap').style.display    = 'none';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('result-wrap').style.display  = 'block';
+
+  const rama = computeResult();
+  const b    = BRANCHES[rama];
+  const lore = LORE_TEXT[b.lore];
+
+  document.getElementById('r-glyph').textContent  = b.glyph;
+  document.getElementById('r-group').textContent  = b.group === 'marcial' ? 'Rama Marcial' : 'Rama Mística';
+  document.getElementById('r-unit').textContent   = b.unit;
+  document.getElementById('r-zodiac').textContent = 'Zodiaco: ' + b.zodiac;
+  document.getElementById('r-frase').textContent  = '"' + b.frase + '"';
+  document.getElementById('r-trial').textContent  = b.trial;
+
+  const skillsEl = document.getElementById('r-skills');
+  skillsEl.innerHTML = '';
+  b.skills.forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = s;
+    skillsEl.appendChild(li);
+  });
+
+  document.getElementById('r-lore').innerHTML =
+    '<span class="lore-tag ' + lore.cls + '">' + lore.text + '</span>';
+
+  const box = document.getElementById('r-appearance-box');
+  const hasAppearance = answers.charName || answers.hair || answers.eyes || answers.skin || answers.build || answers.hairShape || answers.gender;
+  if(hasAppearance){
+    box.style.display = 'block';
+    document.getElementById('r-charname').textContent =
+      (answers.charName || 'Personaje sin nombre') + (answers.charUser ? ' · ' + answers.charUser : '');
+    const parts = [];
+    if(answers.gender) parts.push(answers.gender);
+    if(answers.hair)   parts.push('Cabello ' + answers.hair.toLowerCase() + (answers.hairShape ? ' y ' + answers.hairShape.toLowerCase() : ''));
+    if(answers.eyes)   parts.push('ojos ' + answers.eyes.toLowerCase());
+    if(answers.skin)   parts.push('piel ' + answers.skin.toLowerCase());
+    if(answers.build)  parts.push('complexión ' + answers.build.toLowerCase());
+    document.getElementById('r-chardesc').textContent = parts.join(' · ');
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+/* ─── DOWNLOAD ─── */
+document.getElementById('btn-download').onclick = () => {
+  const btns = document.querySelector('.result-actions');
+  btns.style.visibility = 'hidden';
+  html2canvas(document.getElementById('result-card'), {backgroundColor:'#0b0b12', scale:2}).then(canvas => {
+    btns.style.visibility = 'visible';
+    const link = document.createElement('a');
+    link.download = 'mi-rama-taltaio.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+};
+
+/* ─── RESTART ─── */
+document.getElementById('btn-restart').onclick = () => {
+  answers = {}; stepIndex = 0; cachedQ9Options = null; initScores();
+  document.getElementById('result-wrap').style.display    = 'none';
+  document.getElementById('quiz-wrap').style.display      = 'block';
+  document.getElementById('progress-wrap').style.display  = 'block';
+  render();
+};
+
+/* ─── INIT ─── */
+initScores();
+render();
+</script>
+</body>
+</html>
