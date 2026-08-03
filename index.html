@@ -291,16 +291,16 @@ const BASE_STEPS = [
     help:'',
     type:'single',
     options:[
-      {icon:'🩸', title:'En el frente',         sub:'Cara a cara, sin importar el costo.', key:'frente'},
-      {icon:'👁️', title:'En las sombras',        sub:'Que no sepan que estoy ahí hasta que sea tarde.', key:'sombras'},
-      {icon:'🧠', title:'Desde la retaguardia',  sub:'Controlando la situación desde arriba.', key:'retaguardia'},
-      {icon:'✨', title:'En otro plano',          sub:'El campo físico me limita. Opero donde otros no pueden.', key:'plano'},
+      {icon:'🩸', title:'Cortes precisos al frente',  sub:'Combatiendo cara a cara.', key:'frente'},
+      {icon:'👁️', title:'En las sombras',              sub:'Que no sepan que estoy ahí hasta que sea tarde.', key:'sombras'},
+      {icon:'🧠', title:'Desde la retaguardia',        sub:'Controlando la situación o atacando de lejos.', key:'retaguardia'},
+      {icon:'✨', title:'Con ayuda',                   sub:'De mis músculos, espíritus o de mi arma cambiante.', key:'ayuda'},
     ],
     score:{
-      frente:      {buey:3, tigre:2, dragon:2, cabra:1, cerdo:3},
-      sombras:     {serpiente:3, caballo:2, tigre:1, mono:1},
-      retaguardia: {raton:3, caballo:2, mono:2, gallo:1},
-      plano:       {conejo:3, perro:3, mono:2, gallo:1},
+      frente:      {tigre:1, dragon:1, cerdo:1},
+      sombras:     {conejo:1, serpiente:1, mono:1},
+      retaguardia: {raton:1, caballo:1, gallo:1},
+      ayuda:       {buey:1, cabra:1, perro:1},
     }
   },
 
@@ -317,10 +317,10 @@ const BASE_STEPS = [
       {icon:'🔮', title:'Algo que no puedo explicar', sub:'Un sentido que va más allá de lo físico.', key:'sentido'},
     ],
     score:{
-      fuerza:   {buey:3, cerdo:2, dragon:1, cabra:2},
-      velocidad:{caballo:3, tigre:2, serpiente:2, cabra:1},
-      mente:    {raton:3, mono:2, serpiente:1, dragon:1},
-      sentido:  {perro:3, conejo:3, mono:1, gallo:1},
+      fuerza:   {buey:1, cabra:1, cerdo:1},
+      velocidad:{tigre:1, conejo:1, serpiente:1, caballo:1},
+      mente:    {raton:1, dragon:1},
+      sentido:  {mono:1, gallo:1, perro:1},
     }
   },
 
@@ -334,15 +334,17 @@ const BASE_STEPS = [
       {icon:'🗡️', title:'Un arma que yo mismo forjo',      sub:'Espada, daga o algo con filo.', key:'forja'},
       {icon:'🔗', title:'Un arma que se alarga o enrolla', sub:'Cadenas, látigos, algo que se estira.', key:'alcance'},
       {icon:'🎯', title:'Disparo desde lejos',              sub:'Una flecha, una bala, lo que sea con distancia.', key:'rango'},
-      {icon:'🤜', title:'Mis propias manos',                sub:'No necesito nada más.', key:'manos'},
-      {icon:'🧪', title:'Algo invisible',                   sub:'Veneno, ilusión, lo que no se ve venir.', key:'invisible'},
+      {icon:'🤜', title:'Mis propias manos o elementos',   sub:'No necesito nada externo.', key:'manos'},
+      {icon:'🧪', title:'Con algo invisible',               sub:'Veneno o espíritus. Que no lo vea venir.', key:'invisible'},
+      {icon:'🎭', title:'Jugando con sus mentes',           sub:'Con estrategias o ilusiones.', key:'mente'},
     ],
     score:{
-      forja:    {dragon:3, tigre:2, cerdo:2, buey:1},
-      alcance:  {cabra:3, caballo:1, cerdo:1},
-      rango:    {caballo:3, raton:1},
-      manos:    {buey:3, tigre:1, cerdo:1},
-      invisible:{serpiente:3, mono:2, conejo:1},
+      forja:    {dragon:1},
+      alcance:  {conejo:1, caballo:1},
+      rango:    {tigre:1, cabra:1},
+      manos:    {buey:1, gallo:1},
+      invisible:{serpiente:1, perro:1},
+      mente:    {raton:1, mono:1},
     }
   },
 
@@ -353,26 +355,16 @@ const BASE_STEPS = [
     help:'Solo uno. El que sientas más cercano a tu forma de ser.',
     type:'single',
     options:[
-      {icon:'🔥', title:'Fuego',        sub:'Consume todo. Tú también.', key:'fuego'},
-      {icon:'💧', title:'Agua',         sub:'Flexible, imparable, adaptable.', key:'agua'},
-      {icon:'⚡', title:'Rayo',         sub:'Un golpe certero. Sin aviso.', key:'rayo'},
-      {icon:'🌿', title:'Flora',        sub:'Enredaderas que atrapan, raíces que rompen.', key:'flora'},
-      {icon:'🌪️', title:'Aire',        sub:'Donde estás, nadie lo sabe.', key:'aire'},
-      {icon:'🪨', title:'Tierra',       sub:'Firme. Nada te mueve.', key:'tierra'},
+      {icon:'🔥', title:'Elementos',    sub:'Fuego, agua, rayo, tierra, aire, flora… lo que el entorno me dé.', key:'elementos'},
+      {icon:'☀️', title:'Luz u oscuridad', sub:'Revelar, cegar, ocultar. Lo absoluto de cada extremo.', key:'luzosc'},
       {icon:'🌀', title:'Telequinesis', sub:'Mover lo que otros no pueden tocar.', key:'telequinesis'},
-      {icon:'☀️', title:'Luz',          sub:'Ciega, guía, revela lo oculto.', key:'luz'},
-      {icon:'🌑', title:'Oscuridad',    sub:'No hay poder más absoluto que lo que no se ve.', key:'oscuridad'},
+      {icon:'💪', title:'Solo algo físico', sub:'Sin poderes. Solo el cuerpo, el arma y la voluntad.', key:'fisico'},
     ],
     score:{
-      fuego:       {gallo:3, dragon:1, tigre:1},
-      agua:        {gallo:3, conejo:1, serpiente:1},
-      rayo:        {gallo:3, caballo:1},
-      flora:       {gallo:3, cabra:1},
-      aire:        {gallo:3, caballo:1, conejo:1},
-      tierra:      {gallo:3, buey:1, cerdo:1},
-      telequinesis:{mono:2, conejo:2, raton:1},
-      luz:         {perro:2, dragon:2, gallo:1},
-      oscuridad:   {perro:3, serpiente:2, mono:1},
+      elementos:   {caballo:1, cabra:1, gallo:1},
+      luzosc:      {conejo:1, serpiente:1, perro:1},
+      telequinesis:{raton:1, mono:1, cerdo:1},
+      fisico:      {buey:1, tigre:1, dragon:1},
     }
   },
 
@@ -385,16 +377,14 @@ const BASE_STEPS = [
     options:[
       {icon:'🌀', title:'Hacer creer a alguien que ve algo que no existe', sub:'Construir la ilusión perfecta.', key:'ilusion'},
       {icon:'📡', title:'Anticipar cada movimiento del enemigo',            sub:'Pensar diez pasos adelante.', key:'estrategia'},
-      {icon:'🚪', title:'Aparecer en cualquier punto del espacio',           sub:'Sin importar si puedo verlo.', key:'teletransporte'},
       {icon:'👁️', title:'Ver lo que nadie más puede ver',                   sub:'Almas, presencias, verdades ocultas.', key:'vision'},
-      {icon:'🔒', title:'Blindar mi mente completamente',                   sub:'Que nada ni nadie entre.', key:'escudo'},
+      {icon:'🌀', title:'Mover cosas con la mente',                         sub:'Sin tocarlas. Solo con el pensamiento.', key:'telekinesis'},
     ],
     score:{
-      ilusion:       {mono:3, serpiente:1},
-      estrategia:    {raton:3, mono:1, caballo:1},
-      teletransporte:{conejo:3},
-      vision:        {perro:3, conejo:1},
-      escudo:        {raton:2, mono:2, perro:1},
+      ilusion:   {raton:1, serpiente:1, mono:1},
+      estrategia:{buey:1, tigre:1, dragon:1},
+      vision:    {cabra:1, gallo:1, perro:1},
+      telekinesis:{conejo:1, caballo:1, cerdo:1},
     }
   },
 
@@ -410,13 +400,15 @@ const BASE_STEPS = [
       {icon:'🎭', title:'Que te hagan creer algo falso',  sub:'Manipulación, juegos de mente, engaños.', key:'engano'},
       {icon:'😴', title:'Sin dormir, sin parar',         sub:'Días operando sin descanso ni claridad.', key:'sueño'},
       {icon:'🧿', title:'Que algo invisible te hable',   sub:'Voces, presencias, visiones que no puedes ignorar.', key:'espiritu'},
+      {icon:'🍽️', title:'No comer por días',             sub:'El hambre no dobla tu voluntad.', key:'ayuno'},
     ],
     score:{
-      dolor:    {buey:3, cerdo:3, cabra:2, tigre:2},
-      privacion:{conejo:3, caballo:1, serpiente:1},
-      engano:   {mono:3, raton:2, perro:1},
-      sueño:    {raton:3, dragon:2, serpiente:1},
-      espiritu: {perro:3, conejo:1, mono:1},
+      dolor:    {buey:1, cerdo:1},
+      privacion:{tigre:1, dragon:1},
+      engano:   {cabra:1, mono:1},
+      sueño:    {raton:1, caballo:1},
+      espiritu: {conejo:1, perro:1},
+      ayuno:    {serpiente:1, gallo:1},
     }
   },
 
@@ -432,13 +424,15 @@ const BASE_STEPS = [
       {icon:'🩺', title:'El soporte',      sub:'Mantengo a los demás en pie cuando todo falla.', key:'soporte'},
       {icon:'💣', title:'El detonador',    sub:'Entro primero. Hago el daño. Los demás terminan.', key:'detonador'},
       {icon:'🔍', title:'El explorador',   sub:'Voy donde nadie va. Traigo información que nadie tiene.', key:'explorador'},
+      {icon:'😈', title:'El torturador',   sub:'Extraigo lo que necesito. Sin importar cómo.', key:'torturador'},
     ],
     score:{
-      escudo:    {cerdo:3, buey:2, cabra:2},
-      estratega: {raton:3, dragon:1, mono:1},
-      soporte:   {tigre:2, perro:2, gallo:1},
-      detonador: {tigre:3, buey:2, dragon:2, caballo:1},
-      explorador:{serpiente:3, caballo:2, conejo:3, mono:1},
+      escudo:    {buey:1, cabra:1},
+      estratega: {raton:1, dragon:1},
+      soporte:   {tigre:1, cerdo:1},
+      detonador: {conejo:1, gallo:1},
+      explorador:{caballo:1, perro:1},
+      torturador:{serpiente:1, mono:1},
     }
   },
 
@@ -456,11 +450,11 @@ const BASE_STEPS = [
       {icon:'🔗', title:'Lo controlo. No lo destruyo',              sub:'Hay maneras de ganar sin destruir.', key:'control'},
     ],
     score:{
-      frente:   {buey:3, dragon:2, tigre:2, cerdo:2},
-      invisible:{serpiente:3, caballo:2, conejo:2},
-      trampa:   {raton:3, mono:3, serpiente:1},
-      entorno:  {gallo:3, cabra:1, conejo:1},
-      control:  {mono:3, perro:2, conejo:1},
+      frente:   {buey:1, tigre:1, dragon:1, cabra:1, cerdo:1},
+      invisible:{tigre:1, serpiente:1, caballo:1, mono:1, perro:1},
+      trampa:   {raton:1, conejo:1, dragon:1, serpiente:1, gallo:1},
+      entorno:  {buey:1, conejo:1, caballo:1, gallo:1, perro:1},
+      control:  {raton:1, cabra:1, mono:1, cerdo:1},
     }
   },
 
@@ -568,10 +562,10 @@ function render(){
       el.innerHTML = `<div class="opt-icon">${opt.icon}</div><div class="opt-text"><div class="opt-title">${opt.title}</div>${opt.sub ? `<div class="opt-sub">${opt.sub}</div>` : ''}</div>`;
       el.onclick = () => {
         if(answers['_prev_frase_final']){
-          scores[answers['_prev_frase_final']] -= 4;
+          scores[answers['_prev_frase_final']] -= 2;
         }
         answers[step.id] = opt.key;
-        scores[opt.key] = (scores[opt.key] || 0) + 4;
+        scores[opt.key] = (scores[opt.key] || 0) + 2;
         answers['_prev_frase_final'] = opt.key;
         render();
       };
@@ -745,3 +739,4 @@ render();
 </script>
 </body>
 </html>
+
