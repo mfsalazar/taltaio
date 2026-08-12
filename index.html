@@ -239,7 +239,7 @@ const BRANCHES = {
     zodiac:'Gallo', glyph:'酉', group:'mistica', unit:'Heraldos Elementales',
     frase:'Cuando el gallo los levanta, los elementos lo escuchan.',
     trial:'Debes dominar el poder elemental — agua, aire, flora, fuego, tierra o rayo. Si solo tienes un elemento, debes explotarlo hasta el límite.',
-    skills:['Combatientes elementales, visibles y devastadores.','Resistentes prácticamente a todo lo que los rodea.','Especialistas en dominio elemental.'],
+    skills:['Combatientes de media distancia.','Resistentes a todo lo que está en las 3 dimensiones.','Especialistas en dominio elemental.'],
     lore:'aunNo'
   },
   perro: {
@@ -566,7 +566,7 @@ function render(){
           scores[answers['_prev_frase_final']] -= 2;
         }
         answers[step.id] = opt.key;
-        scores[opt.key] = (scores[opt.key] || 0) + 2;
+        scores[opt.key] = (scores[opt.key] || 0) + 3;
         answers['_prev_frase_final'] = opt.key;
         render();
       };
