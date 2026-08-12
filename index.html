@@ -157,6 +157,7 @@
         <div class="char-name" id="r-charname"></div>
         <div class="char-desc" id="r-chardesc"></div>
       </div>
+      <div id="r-code" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(139,138,154,0.45);letter-spacing:.08em;text-align:right;"></div>
     </div>
     <div class="result-actions">
       <button class="ghost" id="btn-restart">Repetir</button>
@@ -479,11 +480,11 @@ const BASE_STEPS = [
 
 const TOTAL_STEPS = BASE_STEPS.length; // 10
 
-const HAIR_COLORS = ['Negro','Castaño','Rubio','Pelirrojo','Plateado','Blanco','Azul / Verde fantasía'];
-const HAIR_SHAPES = ['Liso','Ondulado','Rizado','Trenzado','Recogido / Moño','Rapado en los lados'];
-const EYE_COLORS  = ['Cafés','Verdes','Azules','Grises','Ámbar','Heterocromía (2 colores)'];
+const HAIR_COLORS = ['Negro','Castaño','Rubio','Pelirrojo','Plateado','Blanco','Azul','Verde','Rosado','Morado'];
+const HAIR_SHAPES = ['Liso','Ondulado','Rizado','Afro','Trenzado','Trenzas africanas','Recogido / Moño','Rapado en los lados','Afeitado un lado','Mohicano','Calv@'];
+const EYE_COLORS  = ['Cafés','Verdes','Azules','Grises','Ámbar','Morado','Heterocromía (2 colores)'];
 const SKIN_TONES  = ['Pálida','Clara','Trigueña','Morena','Oscura'];
-const BODY_BUILD  = ['Delgada','Atlética','Robusta','Voluptuosa','Menuda / pequeña'];
+const BODY_BUILD  = ['Delgad@','Atlétic@','Corpulent@ / Grande','Voluptuos@','Menud@ / pequeñ@'];
 const GENDER_IDS  = ['Femenino','Masculino','No binario','Otro'];
 
 let answers   = {};
@@ -693,6 +694,28 @@ function showResult(){
   document.getElementById('r-lore').innerHTML =
     '<span class="lore-tag ' + lore.cls + '">' + lore.text + '</span>';
 
+  // Build compact answer code for each question (position of chosen option, 1-indexed)
+  const Q_MAPS = [
+    {id:'rol',         keys:['frente','sombras','retaguardia','ayuda']},
+    {id:'cuerpo',      keys:['fuerza','velocidad','mente','sentido']},
+    {id:'arma',        keys:['forja','alcance','rango','manos','invisible','mente']},
+    {id:'elemento',    keys:['elementos','luzosc','telequinesis','fisico']},
+    {id:'mente_poder', keys:['ilusion','estrategia','vision','telekinesis']},
+    {id:'resistencia', keys:['dolor','privacion','engano','sueño','espiritu','ayuno']},
+    {id:'aliado',      keys:['escudo','estratega','soporte','detonador','explorador','torturador']},
+    {id:'victoria',    keys:['frente','invisible','trampa','entorno','control']},
+    {id:'frase_final', keys:null},
+  ];
+  const Q9_INITIALS = {raton:'Ra',buey:'Bu',tigre:'Ti',conejo:'Co',dragon:'Dr',serpiente:'Se',caballo:'Ca',cabra:'Cb',mono:'Mo',gallo:'Ga',perro:'Pe',cerdo:'Ce'};
+  const codeDigits = Q_MAPS.map(q => {
+    const val = answers[q.id];
+    if(!val) return '?';
+    if(!q.keys) return Q9_INITIALS[val] || '?';
+    const idx = q.keys.indexOf(val);
+    return idx >= 0 ? String(idx + 1) : '?';
+  });
+  document.getElementById('r-code').textContent = codeDigits.join('');
+
   const box = document.getElementById('r-appearance-box');
   const hasAppearance = answers.charName || answers.hair || answers.eyes || answers.skin || answers.build || answers.hairShape || answers.gender;
   if(hasAppearance){
@@ -739,4 +762,3 @@ render();
 </script>
 </body>
 </html>
-
