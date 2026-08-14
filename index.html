@@ -139,6 +139,7 @@
     <div class="result-card" id="result-card">
       <div class="result-top">
         <div class="result-glyph" id="r-glyph"></div>
+        <img id="r-zodiac-img" src="" alt="" style="width:120px;height:120px;object-fit:contain;display:none;margin:10px auto 4px;filter:drop-shadow(0 0 18px rgba(200,162,74,0.35));">
         <div class="result-eyebrow" id="r-group"></div>
         <div class="result-unit" id="r-unit"></div>
         <div class="result-zodiac" id="r-zodiac"></div>
@@ -239,7 +240,7 @@ const BRANCHES = {
     zodiac:'Gallo', glyph:'酉', group:'mistica', unit:'Heraldos Elementales',
     frase:'Cuando el gallo los levanta, los elementos lo escuchan.',
     trial:'Debes dominar el poder elemental — agua, aire, flora, fuego, tierra o rayo. Si solo tienes un elemento, debes explotarlo hasta el límite.',
-    skills:['Combatientes de media distancia.','Resistentes a todo lo que está en las 3 dimensiones.','Especialistas en dominio elemental.'],
+    skills:['Combatientes elementales, visibles y devastadores.','Resistentes prácticamente a todo lo que los rodea.','Especialistas en dominio elemental.'],
     lore:'aunNo'
   },
   perro: {
@@ -566,7 +567,7 @@ function render(){
           scores[answers['_prev_frase_final']] -= 2;
         }
         answers[step.id] = opt.key;
-        scores[opt.key] = (scores[opt.key] || 0) + 3;
+        scores[opt.key] = (scores[opt.key] || 0) + 2;
         answers['_prev_frase_final'] = opt.key;
         render();
       };
@@ -682,6 +683,13 @@ function showResult(){
   document.getElementById('r-zodiac').textContent = 'Zodiaco: ' + b.zodiac;
   document.getElementById('r-frase').textContent  = '"' + b.frase + '"';
   document.getElementById('r-trial').textContent  = b.trial;
+
+  // Load zodiac image
+  const imgEl = document.getElementById('r-zodiac-img');
+  imgEl.src = rama + '.png';
+  imgEl.alt = b.zodiac;
+  imgEl.style.display = 'block';
+  imgEl.onerror = () => { imgEl.style.display = 'none'; };
 
   const skillsEl = document.getElementById('r-skills');
   skillsEl.innerHTML = '';
